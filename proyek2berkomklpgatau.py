@@ -1,3 +1,3 @@
 #PROYEK BERKOM
-n = int(input("Masukkan nilai n: :)
-              
+n = int(input("Masukkan nilai n: :)")
+# lalalalalalala
