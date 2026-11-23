@@ -16,6 +16,7 @@ async def main(page: ft.Page):
     engine = FleetEngine()
     home_view = HomeView(engine=engine, page=page)
     page.add(home_view)
+    home_view.refresh_ui()
 
     # Loop pembaruan posisi shuttle setiap 0.25 detik
     async def simulation_loop():

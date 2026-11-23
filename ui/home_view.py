@@ -438,5 +438,5 @@ class HomeView(ft.Column):
             )
 
         self.stops_timeline.controls = timeline_items
-        if self.app_page:
+        if getattr(self, "_page", None) is not None:
             self.app_page.update()

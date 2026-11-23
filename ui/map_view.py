@@ -138,5 +138,5 @@ class InteractiveCampusMap(ft.Container):
             )
 
         self.canvas.shapes = shapes
-        if self.canvas.page:
+        if getattr(self.canvas, "_page", None) is not None:
             self.canvas.update()
