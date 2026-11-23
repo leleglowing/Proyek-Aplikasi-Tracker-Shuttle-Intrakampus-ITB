@@ -1,147 +1,171 @@
-import os
-import flet as ft
-import flet.canvas as cv
-from data.shuttle_data import ROUTE_WAYPOINTS, STOPS
+import math
+from dataclasses import dataclass
+from datetime import datetime
+from data.shuttle_data import ROUTE_WAYPOINTS, STOPS, OPERATIONAL_INFO
 
 
-SEGMENT_COLORS = {
-    "RED": "#E53935",
-    "YELLOW": "#FBC02D",
-    "BLUE": "#00529B",
-}
+@dataclass
+class ShuttleUnit:
+    unit_id: str
+    plate_number: str
+    progress: float          # 0.0 s.d. < 1.0 sepanjang lintasan loop
+    x: float = 0.0
+    y: float = 0.0
+    current_segment: str = "RED"
+    current_corridor: str = "MAIN_SPINE"
+    status: str = "BERJALAN"  # "BERJALAN", "DI HALTE", "JAGA JARAK"
+    dwell_timer: float = 0.0
+    last_stop_id: str = ""
 
 
-class InteractiveCampusMap(ft.Container):
-    def __init__(self, map_width: int = 400, map_height: int = 360):
-        super().__init__()
-        self.map_width = map_width
-        self.map_height = map_height
-        self.width = map_width
-        self.height = map_height
-        self.bgcolor = "#E8EEF5"
+class FleetEngine:
+    def __init__(self):
+        self.waypoints = ROUTE_WAYPOINTS
+        self.stops = STOPS
+        self.segment_lengths = []
+        self.cumulative_lengths = [0.0]
+        self.total_length = 0.0
 
-        self.canvas = cv.Canvas(
-            width=map_width,
-            height=map_height,
-            shapes=[],
-        )
+        self._build_route_metrics()
+        self.stop_progress_map = self._map_stops_to_progress()
 
-        # Cek apakah file gambar peta tersedia di folder assets
-        asset_path = os.path.join("assets", "peta_itb_jatinangor.png")
-        layers = []
-        if os.path.exists(asset_path):
-            layers.append(
-                ft.Image(
-                    src=asset_path,
-                    width=map_width,
-                    height=map_height,
-                    fit="contain",
-                )
-            )
-        else:
-            # Fallback skema kampus jika gambar belum ditaruh di folder assets/
-            layers.append(
-                ft.Container(
-                    width=map_width,
-                    height=map_height,
-                    bgcolor="#DCE8DC",
-                    alignment=ft.Alignment(0, -0.92),
-                    content=ft.Text(
-                        "Letakkan peta di assets/peta_itb_jatinangor.png",
-                        size=11,
-                        color="#475569",
-                        weight=ft.FontWeight.W_600,
-                    ),
-                )
-            )
+        # Inisialisasi 2 shuttle dengan fase berlawanan (0.00 dan 0.50)
+        self.shuttles = [
+            ShuttleUnit(unit_id="ITB-01", plate_number="D 7011 ITB", progress=0.00),
+            ShuttleUnit(unit_id="ITB-02", plate_number="D 7022 ITB", progress=0.50),
+        ]
+        self.speed_multiplier = 15.0
+        self.update(0.0)
 
-        layers.append(self.canvas)
-        self.content = ft.Stack(controls=layers, width=map_width, height=map_height)
-
-    def _to_px(self, norm_pos: tuple[float, float]) -> tuple[float, float]:
-        # Menyesuaikan rasio aspek peta potret (1:1.41) di dalam viewport
-        img_w = self.map_height / 1.414
-        offset_x = (self.map_width - img_w) / 2.0
-        return offset_x + norm_pos[0] * img_w, norm_pos[1] * self.map_height
-
-    def render(self, shuttles, origin_stop_id: str, dest_stop_id: str):
-        shapes = []
-        n = len(ROUTE_WAYPOINTS)
-
-        # 1. Gambar garis rute Merah -> Kuning -> Biru
+    def _build_route_metrics(self):
+        n = len(self.waypoints)
+        total = 0.0
         for i in range(n):
-            wp1 = ROUTE_WAYPOINTS[i]
-            wp2 = ROUTE_WAYPOINTS[(i + 1) % n]
-            x1, y1 = self._to_px(wp1["pos"])
-            x2, y2 = self._to_px(wp2["pos"])
-            seg_color = SEGMENT_COLORS.get(wp1["segment"], "#00529B")
+            p1 = self.waypoints[i]["pos"]
+            p2 = self.waypoints[(i + 1) % n]["pos"]
+            dist = math.hypot(p2[0] - p1[0], p2[1] - p1[1])
+            self.segment_lengths.append(dist)
+            total += dist
+            self.cumulative_lengths.append(total)
+        self.total_length = total
 
-            shapes.append(
-                cv.Line(
-                    x1, y1, x2, y2,
-                    paint=ft.Paint(
-                        color=seg_color,
-                        stroke_width=3.5,
-                        stroke_cap=ft.StrokeCap.ROUND,
-                    ),
-                )
-            )
+    def _map_stops_to_progress(self) -> dict[str, float]:
+        mapping = {}
+        for idx, wp in enumerate(self.waypoints):
+            if wp["is_stop"]:
+                mapping[wp["id"]] = self.cumulative_lengths[idx] / self.total_length
+        return mapping
 
-        # 2. Gambar titik halte & indikator Putar Balik
-        for stop in STOPS:
-            sx, sy = self._to_px(stop["pos"])
-            is_origin = stop["id"] == origin_stop_id
-            is_dest = stop["id"] == dest_stop_id
+    def _interpolate_position(self, progress: float):
+        progress = progress % 1.0
+        target_dist = progress * self.total_length
+        n = len(self.waypoints)
 
-            if is_origin:
-                shapes.append(cv.Circle(sx, sy, 9, paint=ft.Paint(color="#00529B")))
-                shapes.append(cv.Circle(sx, sy, 4, paint=ft.Paint(color="#FFFFFF")))
-            elif is_dest:
-                shapes.append(cv.Circle(sx, sy, 9, paint=ft.Paint(color="#F57C00")))
-                shapes.append(cv.Circle(sx, sy, 4, paint=ft.Paint(color="#FFFFFF")))
+        for i in range(n):
+            start_d = self.cumulative_lengths[i]
+            end_d = self.cumulative_lengths[i + 1]
+            if start_d <= target_dist <= end_d:
+                seg_len = self.segment_lengths[i]
+                ratio = (target_dist - start_d) / seg_len if seg_len > 0 else 0.0
+                p1 = self.waypoints[i]["pos"]
+                p2 = self.waypoints[(i + 1) % n]["pos"]
+                x = p1[0] + (p2[0] - p1[0]) * ratio
+                y = p1[1] + (p2[1] - p1[1]) * ratio
+                return x, y, self.waypoints[i]["segment"], self.waypoints[i]["corridor"]
+
+        first = self.waypoints[0]
+        return first["pos"][0], first["pos"][1], first["segment"], first["corridor"]
+
+    def _check_stop_arrival(self, old_prog: float, new_prog: float) -> str | None:
+        for stop_id, stop_prog in self.stop_progress_map.items():
+            if old_prog <= new_prog:
+                if old_prog < stop_prog <= new_prog:
+                    return stop_id
             else:
-                fill_c = "#D32F2F" if stop["is_uturn"] else "#FFFFFF"
-                border_c = "#00529B"
-                shapes.append(cv.Circle(sx, sy, 5, paint=ft.Paint(color=border_c)))
-                shapes.append(cv.Circle(sx, sy, 3, paint=ft.Paint(color=fill_c)))
+                if stop_prog > old_prog or stop_prog <= new_prog:
+                    return stop_id
+        return None
 
-        # 3. Gambar ikon 2 armada shuttle aktif (ITB-01 & ITB-02)
-        for idx, shuttle in enumerate(shuttles):
-            bx, by = self._to_px((shuttle.x, shuttle.y))
-            badge_color = "#00529B" if idx == 0 else "#0288D1"
+    def update(self, dt: float):
+        loop_seconds = OPERATIONAL_INFO["loop_duration_minutes"] * 60.0
+        base_speed = (1.0 / loop_seconds) * self.speed_multiplier
 
-            # Halo luar
-            shapes.append(
-                cv.Circle(bx, by, 12, paint=ft.Paint(color="#4400529B"))
-            )
-            # Badan marker shuttle
-            shapes.append(
-                cv.Circle(bx, by, 8.5, paint=ft.Paint(color=badge_color))
-            )
-            shapes.append(
-                cv.Circle(
-                    bx, by, 8.5,
-                    paint=ft.Paint(
-                        color="#FFFFFF",
-                        style=ft.PaintingStyle.STROKE,
-                        stroke_width=2,
-                    ),
-                )
-            )
-            # Label kode shuttle ("01" / "02")
-            shapes.append(
-                cv.Text(
-                    bx - 6,
-                    by - 5,
-                    shuttle.unit_id.split("-")[1],
-                    style=ft.TextStyle(
-                        size=9,
-                        weight=ft.FontWeight.BOLD,
-                        color="#FFFFFF",
-                    ),
-                )
-            )
+        s1, s2 = self.shuttles[0], self.shuttles[1]
 
-        self.canvas.shapes = shapes
-        if self.canvas.page:
-            self.canvas.update()
+        for idx, shuttle in enumerate(self.shuttles):
+            other = s2 if idx == 0 else s1
+
+            if shuttle.dwell_timer > 0:
+                shuttle.dwell_timer = max(0.0, shuttle.dwell_timer - dt * self.speed_multiplier)
+                shuttle.status = "DI HALTE"
+                continue
+
+            forward_gap = (other.progress - shuttle.progress) % 1.0
+            if forward_gap < 0.42:
+                shuttle.status = "JAGA JARAK"
+                continue
+
+            step = base_speed * dt
+            next_prog = (shuttle.progress + step) % 1.0
+            _, _, _, next_corridor = self._interpolate_position(next_prog)
+
+            if next_corridor in ("MAIN_SPINE", "NORTH_RING"):
+                if other.current_corridor == next_corridor and forward_gap < 0.48:
+                    shuttle.status = "JAGA JARAK"
+                    continue
+
+            old_prog = shuttle.progress
+            shuttle.progress = next_prog
+            shuttle.status = "BERJALAN"
+
+            arrived_stop = self._check_stop_arrival(old_prog, shuttle.progress)
+            if arrived_stop and arrived_stop != shuttle.last_stop_id:
+                shuttle.last_stop_id = arrived_stop
+                shuttle.dwell_timer = 12.0
+                shuttle.status = "DI HALTE"
+
+        for shuttle in self.shuttles:
+            x, y, seg, corr = self._interpolate_position(shuttle.progress)
+            shuttle.x = x
+            shuttle.y = y
+            shuttle.current_segment = seg
+            shuttle.current_corridor = corr
+
+    def get_eta_for_stop(self, target_stop_id: str) -> list[dict]:
+        target_prog = self.stop_progress_map[target_stop_id]
+        loop_minutes = OPERATIONAL_INFO["loop_duration_minutes"]
+        results = []
+
+        for shuttle in self.shuttles:
+            delta_prog = (target_prog - shuttle.progress) % 1.0
+
+            stops_remaining = 0
+            for s_id, s_prog in self.stop_progress_map.items():
+                dist_to_s = (s_prog - shuttle.progress) % 1.0
+                if 0.002 < dist_to_s <= delta_prog + 0.002:
+                    stops_remaining += 1
+
+            eta_minutes = (delta_prog * loop_minutes) + (stops_remaining * 0.2)
+            if delta_prog < 0.015 and shuttle.status == "DI HALTE" and shuttle.last_stop_id == target_stop_id:
+                eta_minutes = 0.0
+                stops_remaining = 0
+
+            results.append({
+                "unit_id": shuttle.unit_id,
+                "plate_number": shuttle.plate_number,
+                "eta_minutes": max(0, round(eta_minutes)),
+                "stops_remaining": stops_remaining,
+                "status": shuttle.status,
+                "segment": shuttle.current_segment,
+            })
+
+        results.sort(key=lambda item: item["eta_minutes"])
+        return results
+
+    def is_operational_now(self) -> tuple[bool, str]:
+        now = datetime.now()
+        open_h = OPERATIONAL_INFO["open_hour"]
+        close_h = OPERATIONAL_INFO["close_hour"]
+        if open_h <= now.hour < close_h:
+            return True, "BEROPERASI"
+        return False, "DI LUAR JAM OPERASIONAL"
