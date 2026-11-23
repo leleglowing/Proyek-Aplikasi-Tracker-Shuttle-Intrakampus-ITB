@@ -291,10 +291,10 @@ class HomeView(ft.Column):
                 ],
             ),
             actions=[
-                ft.TextButton("Tutup", on_click=lambda _: self.app_page.close(dlg)),
+                ft.TextButton("Tutup", on_click=lambda _: self.app_page.pop_dialog()),
             ],
         )
-        self.app_page.open(dlg)
+        self.app_page.show_dialog(dlg)
 
     def refresh_ui(self):
         # 1. Update peta & posisi 2 shuttle
