@@ -1,11 +1,9 @@
 #PROYEK BERKOM
-n = int(input("Masukkan nilai n: :)")
+n = int(input("Masukkan nilai n: :)"))
 # lalalalalalala
 print("hi")
 
-def kebusukan_itb (edumok,six):
-
-itb = input("Masukkan ITB menurut Anda (Goat/Skibidi): ")
+itb = str(input("Masukkan ITB menurut Anda (Goat/Skibidi): "))
 
 if (itb == "Skibidi") :
   print("ya ya ya saya setuju")
