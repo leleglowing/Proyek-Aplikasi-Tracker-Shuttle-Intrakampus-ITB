@@ -143,7 +143,7 @@ class HomeView(ft.Column):
             border=ft.InputBorder.NONE,
             dense=True,
             content_padding=ft.Padding.symmetric(horizontal=4, vertical=0),
-            on_change=self._on_route_selection_change,
+            on_select=self._on_route_selection_change,
             expand=True,
         )
 
@@ -155,7 +155,7 @@ class HomeView(ft.Column):
             border=ft.InputBorder.NONE,
             dense=True,
             content_padding=ft.Padding.symmetric(horizontal=4, vertical=0),
-            on_change=self._on_route_selection_change,
+            on_select=self._on_route_selection_change,
             expand=True,
         )
 
