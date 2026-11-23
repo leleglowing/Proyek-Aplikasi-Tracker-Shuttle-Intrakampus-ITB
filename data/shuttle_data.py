@@ -16,7 +16,7 @@ ROUTE_WAYPOINTS = [
     # === SEGMEN MERAH (Gerbang Utama -> Putar Balik SITH-Rekayasa/TPSDA) ===
     {
         "id": "WP_01",
-        "name": "Halte Gerbang Utama (1)",
+        "name": "Halte Gerbang Utama",
         "building_ref": "Pos Utama & Gerbang Masuk",
         "pos": (0.59, 0.90),
         "segment": "RED",
@@ -27,7 +27,7 @@ ROUTE_WAYPOINTS = [
     {
         "id": "WP_02",
         "name": "Bundaran Simpang Tiga",
-        "building_ref": "Gedung Lab. Kayu (7)",
+        "building_ref": "Bundaran Simpang Tiga",
         "pos": (0.63, 0.70),
         "segment": "RED",
         "corridor": "MAIN_SPINE",
@@ -69,7 +69,7 @@ ROUTE_WAYPOINTS = [
     {
         "id": "WP_06",
         "name": "GKU I",
-        "building_ref": "Gedung Kuliah Umum I & FTSL",
+        "building_ref": "Gedung Kuliah Umum I, Gedung E & D",
         "pos": (0.77, 0.45),
         "segment": "YELLOW",
         "corridor": "EAST_CONNECTOR",
@@ -79,7 +79,7 @@ ROUTE_WAYPOINTS = [
     {
         "id": "WP_07",
         "name": "Simpang Gedung Rektorat",
-        "building_ref": "Gedung Rektorat (33)",
+        "building_ref": "Gedung Rektorat",
         "pos": (0.86, 0.36),
         "segment": "YELLOW",
         "corridor": "NORTH_RING",
@@ -89,7 +89,7 @@ ROUTE_WAYPOINTS = [
     {
         "id": "WP_08",
         "name": "GKU III",
-        "building_ref": "Perpustakaan Pusat & Amphitheater",
+        "building_ref": "GKU III & KOICA",
         "pos": (0.76, 0.25),
         "segment": "YELLOW",
         "corridor": "NORTH_RING",
@@ -99,7 +99,7 @@ ROUTE_WAYPOINTS = [
     {
         "id": "WP_09",
         "name": "GOR ITB Jatinangor",
-        "building_ref": "GOR Jatinangor (30)",
+        "building_ref": "GOR Jatinangor",
         "pos": (0.65, 0.15),
         "segment": "YELLOW",
         "corridor": "NORTH_RING",
@@ -120,7 +120,7 @@ ROUTE_WAYPOINTS = [
     # === SEGMEN BIRU (Putar Balik 2 -> GOR -> Rektorat -> Lingkar Timur -> Gerbang Utama) ===
     {
         "id": "WP_11",
-        "name": "GOR ITB Jatinangor (30)",
+        "name": "GOR ITB Jatinangor",
         "building_ref": "Gelanggang Olah Raga & GSG",
         "pos": (0.65, 0.15),
         "segment": "BLUE",
@@ -130,7 +130,7 @@ ROUTE_WAYPOINTS = [
     },
     {
         "id": "WP_12",
-        "name": "Halte Gedung Rektorat & KOICA (33/34)",
+        "name": "Halte Gedung Rektorat",
         "building_ref": "Rektorat ITB Jatinangor",
         "pos": (0.85, 0.34),
         "segment": "BLUE",
@@ -160,7 +160,7 @@ ROUTE_WAYPOINTS = [
     },
     {
         "id": "WP_15",
-        "name": "SITH Kehutanan & Asrama Dosen (4/2)",
+        "name": "SITH Kehutanan & Asrama Dosen",
         "building_ref": "Gedung SITH (4, 5, 6) & Asrama Dosen",
         "pos": (0.91, 0.76),
         "segment": "BLUE",
