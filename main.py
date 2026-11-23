@@ -10,6 +10,7 @@ async def main(page: ft.Page):
     page.window.height = 860
     page.window.resizable = False
     page.padding = 0
+    page.spacing = 0
     page.bgcolor = "#F8FAFC"
     page.theme_mode = ft.ThemeMode.LIGHT
 
@@ -18,7 +19,6 @@ async def main(page: ft.Page):
     page.add(home_view)
     home_view.refresh_ui()
 
-    # Loop pembaruan posisi shuttle setiap 0.25 detik
     async def simulation_loop():
         while True:
             await asyncio.sleep(0.25)
@@ -29,4 +29,4 @@ async def main(page: ft.Page):
 
 
 if __name__ == "__main__":
-    ft.run(main)
+    ft.run(main, assets_dir="assets")

@@ -12,13 +12,14 @@ SEGMENT_COLORS = {
 
 
 class InteractiveCampusMap(ft.Container):
-    def __init__(self, map_width: int = 400, map_height: int = 360):
+    def __init__(self, map_width: int = 400, map_height: int = 330):
         super().__init__()
         self.map_width = map_width
         self.map_height = map_height
         self.width = map_width
         self.height = map_height
         self.bgcolor = "#E8EEF5"
+        self.padding = 0
 
         self.canvas = cv.Canvas(
             width=map_width,
@@ -26,16 +27,15 @@ class InteractiveCampusMap(ft.Container):
             shapes=[],
         )
 
-        # Cek apakah file gambar peta tersedia di folder assets
-        asset_path = os.path.join("assets", "peta_itb_jatinangor.png")
+        asset_file = os.path.join("assets", "peta_itb_jatinangor.png")
         layers = []
-        if os.path.exists(asset_path):
+        if os.path.exists(asset_file):
             layers.append(
                 ft.Image(
-                    src=asset_path,
+                    src="peta_itb_jatinangor.png",
                     width=map_width,
                     height=map_height,
-                    fit="contain",
+                    fit=ft.BoxFit.CONTAIN,
                 )
             )
         else:
@@ -44,9 +44,9 @@ class InteractiveCampusMap(ft.Container):
                     width=map_width,
                     height=map_height,
                     bgcolor="#DCE8DC",
-                    alignment=ft.Alignment(0, -0.92),
+                    alignment=ft.Alignment(0, -0.85),
                     content=ft.Text(
-                        "Letakkan peta di assets/peta_itb_jatinangor.png",
+                        "Peta ITB Jatinangor (Simulasi Rute)",
                         size=11,
                         color="#475569",
                         weight=ft.FontWeight.W_600,
@@ -66,7 +66,6 @@ class InteractiveCampusMap(ft.Container):
         shapes = []
         n = len(ROUTE_WAYPOINTS)
 
-        # 1. Gambar garis rute Merah -> Kuning -> Biru
         for i in range(n):
             wp1 = ROUTE_WAYPOINTS[i]
             wp2 = ROUTE_WAYPOINTS[(i + 1) % n]
@@ -85,7 +84,6 @@ class InteractiveCampusMap(ft.Container):
                 )
             )
 
-        # 2. Gambar titik halte & indikator Putar Balik
         for stop in STOPS:
             sx, sy = self._to_px(stop["pos"])
             is_origin = stop["id"] == origin_stop_id
@@ -99,21 +97,15 @@ class InteractiveCampusMap(ft.Container):
                 shapes.append(cv.Circle(sx, sy, 4, paint=ft.Paint(color="#FFFFFF")))
             else:
                 fill_c = "#D32F2F" if stop["is_uturn"] else "#FFFFFF"
-                border_c = "#00529B"
-                shapes.append(cv.Circle(sx, sy, 5, paint=ft.Paint(color=border_c)))
+                shapes.append(cv.Circle(sx, sy, 5, paint=ft.Paint(color="#00529B")))
                 shapes.append(cv.Circle(sx, sy, 3, paint=ft.Paint(color=fill_c)))
 
-        # 3. Gambar ikon 2 armada shuttle aktif (ITB-01 & ITB-02)
         for idx, shuttle in enumerate(shuttles):
             bx, by = self._to_px((shuttle.x, shuttle.y))
             badge_color = "#00529B" if idx == 0 else "#0288D1"
 
-            shapes.append(
-                cv.Circle(bx, by, 12, paint=ft.Paint(color="#4400529B"))
-            )
-            shapes.append(
-                cv.Circle(bx, by, 8.5, paint=ft.Paint(color=badge_color))
-            )
+            shapes.append(cv.Circle(bx, by, 12, paint=ft.Paint(color="#4400529B")))
+            shapes.append(cv.Circle(bx, by, 8.5, paint=ft.Paint(color=badge_color)))
             shapes.append(
                 cv.Circle(
                     bx, by, 8.5,
@@ -138,5 +130,7 @@ class InteractiveCampusMap(ft.Container):
             )
 
         self.canvas.shapes = shapes
-        if getattr(self.canvas, "_page", None) is not None:
+        try:
             self.canvas.update()
+        except Exception:
+            pass
