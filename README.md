@@ -1,6 +1,6 @@
 # Proyek Aplikasi Tracker Shuttle Intrakampus ITB Jatinangor
 
-Aplikasi pelacak posisi shuttle intrakampus **Institut Teknologi Bandung (ITB) Kampus Jatinangor** berbasis Python yang terinspirasi dari aplikasi **Metro Jabar Trans**. Proyek ini dikembangkan untuk memenuhi Tugas Besar mata kuliah **WI1102 Berpikir Komputasional (Berkom)**.
+Aplikasi pelacak posisi shuttle intrakampus **Institut Teknologi Bandung (ITB) Kampus Jatinangor** berbasis Python yang terinspirasi dari aplikasi **Metro Jabar Trans**. Proyek ini dikembangkan untuk memenuhi Tugas Besar mata kuliah **WI1102 Berpikir Komputasional Sekolah Teknik Elektro dan Informatika - Komputasi (STEI-K)**.
 
 
 
