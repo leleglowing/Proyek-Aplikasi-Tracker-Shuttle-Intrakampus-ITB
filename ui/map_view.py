@@ -12,7 +12,7 @@ SEGMENT_COLORS = {
 
 
 class InteractiveCampusMap(ft.Container):
-    def __init__(self, map_width: int = 400, map_height: int = 330):
+    def __init__(self, map_width: int = 400, map_height: int = 310):
         super().__init__()
         self.map_width = map_width
         self.map_height = map_height
@@ -66,6 +66,7 @@ class InteractiveCampusMap(ft.Container):
         shapes = []
         n = len(ROUTE_WAYPOINTS)
 
+        # 1. Gambar garis rute Merah -> Kuning -> Biru
         for i in range(n):
             wp1 = ROUTE_WAYPOINTS[i]
             wp2 = ROUTE_WAYPOINTS[(i + 1) % n]
@@ -84,42 +85,90 @@ class InteractiveCampusMap(ft.Container):
                 )
             )
 
-        for stop in STOPS:
+        # 2. Gambar 10 titik pemberhentian dengan kode angka 1 - 10
+        for idx, stop in enumerate(STOPS, start=1):
             sx, sy = self._to_px(stop["pos"])
             is_origin = stop["id"] == origin_stop_id
             is_dest = stop["id"] == dest_stop_id
+            num_str = str(idx)
 
             if is_origin:
-                shapes.append(cv.Circle(sx, sy, 9, paint=ft.Paint(color="#00529B")))
-                shapes.append(cv.Circle(sx, sy, 4, paint=ft.Paint(color="#FFFFFF")))
+                fill_color = "#00529B"
+                border_color = "#FFFFFF"
+                text_color = "#FFFFFF"
+                radius = 9.5
             elif is_dest:
-                shapes.append(cv.Circle(sx, sy, 9, paint=ft.Paint(color="#F57C00")))
-                shapes.append(cv.Circle(sx, sy, 4, paint=ft.Paint(color="#FFFFFF")))
+                fill_color = "#F57C00"
+                border_color = "#FFFFFF"
+                text_color = "#FFFFFF"
+                radius = 9.5
             else:
-                fill_c = "#D32F2F" if stop["is_uturn"] else "#FFFFFF"
-                shapes.append(cv.Circle(sx, sy, 5, paint=ft.Paint(color="#00529B")))
-                shapes.append(cv.Circle(sx, sy, 3, paint=ft.Paint(color=fill_c)))
+                fill_color = "#FFFFFF"
+                border_color = "#D32F2F" if stop["is_uturn"] else "#00529B"
+                text_color = "#0F172A"
+                radius = 8.5
 
-        for idx, shuttle in enumerate(shuttles):
-            bx, by = self._to_px((shuttle.x, shuttle.y))
-            badge_color = "#00529B" if idx == 0 else "#0288D1"
-
-            shapes.append(cv.Circle(bx, by, 12, paint=ft.Paint(color="#4400529B")))
-            shapes.append(cv.Circle(bx, by, 8.5, paint=ft.Paint(color=badge_color)))
+            # Lingkaran pin halte
+            shapes.append(cv.Circle(sx, sy, radius, paint=ft.Paint(color=fill_color)))
             shapes.append(
                 cv.Circle(
-                    bx, by, 8.5,
+                    sx, sy, radius,
+                    paint=ft.Paint(
+                        color=border_color,
+                        style=ft.PaintingStyle.STROKE,
+                        stroke_width=1.8,
+                    ),
+                )
+            )
+
+            # Angka 1 - 10 tepat di tengah lingkaran
+            offset_x = -5.5 if idx >= 10 else -3.0
+            shapes.append(
+                cv.Text(
+                    sx + offset_x,
+                    sy - 5.5,
+                    num_str,
+                    style=ft.TextStyle(
+                        size=9,
+                        weight=ft.FontWeight.BOLD,
+                        color=text_color,
+                    ),
+                )
+            )
+
+        # 3. Gambar ikon 2 armada shuttle aktif (bentuk kapsul persegi membulat)
+        for idx, shuttle in enumerate(shuttles):
+            bx, by = self._to_px((shuttle.x, shuttle.y))
+            badge_color = "#003B73" if idx == 0 else "#0284C7"
+
+            shapes.append(
+                cv.Rect(
+                    bx - 11,
+                    by - 8,
+                    22,
+                    16,
+                    border_radius=5,
+                    paint=ft.Paint(color=badge_color),
+                )
+            )
+            shapes.append(
+                cv.Rect(
+                    bx - 11,
+                    by - 8,
+                    22,
+                    16,
+                    border_radius=5,
                     paint=ft.Paint(
                         color="#FFFFFF",
                         style=ft.PaintingStyle.STROKE,
-                        stroke_width=2,
+                        stroke_width=1.8,
                     ),
                 )
             )
             shapes.append(
                 cv.Text(
                     bx - 6,
-                    by - 5,
+                    by - 5.5,
                     shuttle.unit_id.split("-")[1],
                     style=ft.TextStyle(
                         size=9,
