@@ -2,7 +2,7 @@
 
 Aplikasi pelacak posisi shuttle intrakampus **Institut Teknologi Bandung (ITB) Kampus Jatinangor** berbasis Python yang terinspirasi dari aplikasi **Metro Jabar Trans**. Proyek ini dikembangkan untuk memenuhi Tugas Besar mata kuliah **WI1102 Berpikir Komputasional (Berkom)**.
 
-==================================================================
+
 
 # Fitur Utama
 1. **Peta Kampus Interaktif ITB Jatinangor**
@@ -18,7 +18,7 @@ Aplikasi pelacak posisi shuttle intrakampus **Institut Teknologi Bandung (ITB) K
 4. **Informasi Jam Operasional**
    * Menampilkan status layanan secara *real-time* (**`BEROPERASI`** / **`DI LUAR JAM OPERASIONAL`**) berdasarkan jadwal operasional kampus yakni `06:45 – 16:00 WIB`.
 
-==================================================================
+
 
 # Daftar Titik Pemberhentian
 **1**  Halte Gerbang Utama
@@ -32,7 +32,7 @@ Aplikasi pelacak posisi shuttle intrakampus **Institut Teknologi Bandung (ITB) K
 **9**  Halte Sekretariat Himpunan & TPA
 **10** Halte SITH Kehutanan & Asrama Dosen
 
-==================================================================
+
 
 # Struktur Folder Proyek
 
@@ -56,7 +56,7 @@ Proyek-Aplikasi-Tracker-Shuttle-Intrakampus-ITB/
 
 ```
 
-==================================================================
+
 
 # Cara Instalasi & Menjalankan Aplikasi
 
@@ -82,7 +82,7 @@ python -m pip install -r requirements.txt
 python main.py
 
 ```
-==================================================================
+
 
 ## Keterangan
 
@@ -90,7 +90,7 @@ python main.py
 * **UI Framework:** [Flet](https://flet.dev/) (Flutter for Python)
 * **Desain & Palet Warna:** Tema Biru ITB (`#00529B`) & Putih bersih
 
-==================================================================
+
 
 ## Anggota Kelompok
 
