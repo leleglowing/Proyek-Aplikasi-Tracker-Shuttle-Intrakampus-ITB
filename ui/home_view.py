@@ -21,7 +21,7 @@ class HomeView(ft.Column):
         self.dest_stop_id = STOPS[4]["id"]
 
         # 1. Peta Interaktif
-        self.map_view = InteractiveCampusMap(map_width=400, map_height=310)
+        self.map_view = InteractiveCampusMap(map_width=400, map_height=300)
 
         self.speed_label = ft.Text(
             "Simulasi 15x", size=11, weight=ft.FontWeight.W_600, color=ITB_BLUE
@@ -63,7 +63,7 @@ class HomeView(ft.Column):
 
         map_stack = ft.Stack(
             width=400,
-            height=310,
+            height=300,
             controls=[
                 self.map_view,
                 ft.Container(left=12, top=12, content=self.legend_chip),
@@ -77,7 +77,7 @@ class HomeView(ft.Column):
 
         self.hours_banner = ft.Container(
             bgcolor=ITB_BLUE,
-            padding=ft.Padding.symmetric(horizontal=16, vertical=12),
+            padding=ft.Padding.symmetric(horizontal=16, vertical=10),
             on_click=self._show_operational_dialog,
             content=ft.Column(
                 spacing=4,
@@ -165,8 +165,8 @@ class HomeView(ft.Column):
 
         od_card = ft.Container(
             bgcolor="#FFFFFF",
-            margin=ft.Margin.symmetric(horizontal=14, vertical=8),
-            padding=ft.Padding.all(10),
+            margin=ft.Margin.symmetric(horizontal=14, vertical=6),
+            padding=ft.Padding.all(8),
             border_radius=12,
             border=ft.Border.all(1, "#CBD5E1"),
             content=ft.Row(
@@ -208,6 +208,7 @@ class HomeView(ft.Column):
         # 4. Pil Estimasi Waktu Penjemputan 2 Shuttle
         self.shuttle_chips_row = ft.Row(spacing=8, scroll=ft.ScrollMode.AUTO)
         shuttle_strip = ft.Container(
+            height=52,
             padding=ft.Padding.symmetric(horizontal=14, vertical=2),
             content=self.shuttle_chips_row,
         )
@@ -230,7 +231,7 @@ class HomeView(ft.Column):
                     od_card,
                     shuttle_strip,
                     ft.Container(
-                        padding=ft.Padding.only(left=16, top=6, bottom=2),
+                        padding=ft.Padding.only(left=16, top=4, bottom=2),
                         content=ft.Text(
                             "DAFTAR TITIK PEMBERHENTIAN (KLIK UNTUK PILIH JEMPUT)",
                             size=10,
@@ -252,7 +253,10 @@ class HomeView(ft.Column):
         else:
             self.engine.speed_multiplier = 15.0
             self.speed_label.value = "Simulasi 15x"
-        self.app_page.update()
+        try:
+            self.speed_label.update()
+        except Exception:
+            pass
 
     def _on_route_selection_change(self, e):
         self.origin_stop_id = self.origin_dropdown.value
@@ -263,11 +267,20 @@ class HomeView(ft.Column):
         self.origin_stop_id, self.dest_stop_id = self.dest_stop_id, self.origin_stop_id
         self.origin_dropdown.value = self.origin_stop_id
         self.dest_dropdown.value = self.dest_stop_id
+        try:
+            self.origin_dropdown.update()
+            self.dest_dropdown.update()
+        except Exception:
+            pass
         self.refresh_ui()
 
     def _select_origin_from_list(self, stop_id: str):
         self.origin_stop_id = stop_id
         self.origin_dropdown.value = stop_id
+        try:
+            self.origin_dropdown.update()
+        except Exception:
+            pass
         self.refresh_ui()
 
     def _show_operational_dialog(self, e):
@@ -293,4 +306,159 @@ class HomeView(ft.Column):
 
     def refresh_ui(self):
         self.map_view.render(self.engine.shuttles, self.origin_stop_id, self.dest_stop_id)
-        etas = self
+        etas = self.engine.get_eta_for_stop(self.origin_stop_id)
+
+        chips = []
+        for idx, info in enumerate(etas):
+            is_nearest = idx == 0
+            eta_text = (
+                "Tiba Sekarang"
+                if info["eta_minutes"] == 0
+                else f"±{info['eta_minutes']} mnt ({info['stops_remaining']} halte)"
+            )
+            chips.append(
+                ft.Container(
+                    bgcolor=ITB_BLUE if is_nearest else "#FFFFFF",
+                    border=ft.Border.all(1.5, ITB_BLUE if is_nearest else "#CBD5E1"),
+                    border_radius=12,
+                    padding=ft.Padding.symmetric(horizontal=12, vertical=6),
+                    content=ft.Row(
+                        spacing=6,
+                        tight=True,
+                        controls=[
+                            ft.Icon(
+                                ft.Icons.DIRECTIONS_BUS,
+                                size=16,
+                                color="#FFFFFF" if is_nearest else ITB_BLUE,
+                            ),
+                            ft.Column(
+                                spacing=1,
+                                tight=True,
+                                controls=[
+                                    ft.Text(
+                                        f"{info['unit_id']} • {eta_text}",
+                                        size=11,
+                                        weight=ft.FontWeight.BOLD,
+                                        color="#FFFFFF" if is_nearest else TEXT_DARK,
+                                    ),
+                                    ft.Text(
+                                        f"Status: {info['status']}",
+                                        size=9,
+                                        color="#DCEBFA" if is_nearest else TEXT_MUTED,
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                )
+            )
+        self.shuttle_chips_row.controls = chips
+
+        seg_badge_colors = {
+            "RED": ("#FEE2E2", "#B91C1C", "Merah"),
+            "YELLOW": ("#FEF3C7", "#B45309", "Kuning"),
+            "BLUE": ("#DBEAFE", "#1D4ED8", "Biru"),
+        }
+
+        timeline_items = []
+        for stop_num, stop in enumerate(STOPS, start=1):
+            is_origin = stop["id"] == self.origin_stop_id
+            is_dest = stop["id"] == self.dest_stop_id
+            bg_seg, fg_seg, seg_name = seg_badge_colors[stop["segment"]]
+
+            active_bus_label = ""
+            for s in self.engine.shuttles:
+                if s.last_stop_id == stop["id"]:
+                    active_bus_label = f"🚌 {s.unit_id}"
+
+            badge_bg = ITB_BLUE if is_origin else ("#F57C00" if is_dest else "#E2E8F0")
+            badge_fg = "#FFFFFF" if (is_origin or is_dest) else TEXT_DARK
+
+            timeline_items.append(
+                ft.Container(
+                    padding=ft.Padding.symmetric(vertical=7, horizontal=8),
+                    border_radius=8,
+                    bgcolor=ITB_LIGHT_BLUE if is_origin else ft.Colors.TRANSPARENT,
+                    on_click=lambda e, sid=stop["id"]: self._select_origin_from_list(sid),
+                    content=ft.Row(
+                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                        controls=[
+                            ft.Row(
+                                spacing=10,
+                                expand=True,
+                                controls=[
+                                    ft.Container(
+                                        width=22,
+                                        height=22,
+                                        border_radius=11,
+                                        bgcolor=badge_bg,
+                                        alignment=ft.Alignment(0, 0),
+                                        content=ft.Text(
+                                            str(stop_num),
+                                            size=11,
+                                            weight=ft.FontWeight.BOLD,
+                                            color=badge_fg,
+                                        ),
+                                    ),
+                                    ft.Column(
+                                        spacing=1,
+                                        expand=True,
+                                        tight=True,
+                                        controls=[
+                                            ft.Text(
+                                                stop["name"],
+                                                size=12,
+                                                weight=ft.FontWeight.BOLD if (is_origin or is_dest) else ft.FontWeight.W_500,
+                                                color=ITB_BLUE if is_origin else TEXT_DARK,
+                                            ),
+                                            ft.Text(
+                                                stop["building_ref"],
+                                                size=10,
+                                                color=TEXT_MUTED,
+                                            ),
+                                        ],
+                                    ),
+                                ],
+                            ),
+                            ft.Row(
+                                spacing=4,
+                                tight=True,
+                                controls=[
+                                    ft.Container(
+                                        bgcolor="#DCFCE7",
+                                        border_radius=6,
+                                        padding=ft.Padding.symmetric(horizontal=6, vertical=2),
+                                        visible=bool(active_bus_label),
+                                        content=ft.Text(
+                                            active_bus_label,
+                                            size=9,
+                                            weight=ft.FontWeight.BOLD,
+                                            color="#15803D",
+                                        ),
+                                    ),
+                                    ft.Container(
+                                        bgcolor=bg_seg,
+                                        border_radius=6,
+                                        padding=ft.Padding.symmetric(horizontal=6, vertical=2),
+                                        content=ft.Text(
+                                            seg_name,
+                                            size=9,
+                                            weight=ft.FontWeight.BOLD,
+                                            color=fg_seg,
+                                        ),
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                )
+            )
+
+        self.stops_timeline.controls = timeline_items
+
+        # Update langsung kedua kontrol agar Flet v0.80 langsung merender ulang isinya
+        try:
+            self.shuttle_chips_row.update()
+            self.stops_timeline.update()
+        except Exception:
+            pass

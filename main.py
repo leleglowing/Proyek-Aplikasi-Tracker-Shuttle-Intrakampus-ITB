@@ -1,3 +1,4 @@
+import os
 import asyncio
 import flet as ft
 from services.fleet_engine import FleetEngine
@@ -7,7 +8,7 @@ from ui.home_view import HomeView
 async def main(page: ft.Page):
     page.title = "Shuttle ITB Jatinangor"
     page.window.width = 416
-    page.window.height = 860
+    page.window.height = 820
     page.window.resizable = False
     page.padding = 0
     page.spacing = 0
@@ -29,4 +30,5 @@ async def main(page: ft.Page):
 
 
 if __name__ == "__main__":
-    ft.run(main, assets_dir="assets")
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    ft.run(main, assets_dir=os.path.join(base_dir, "assets"))
