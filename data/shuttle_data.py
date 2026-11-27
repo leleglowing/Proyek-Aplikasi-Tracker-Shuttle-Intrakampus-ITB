@@ -15,8 +15,8 @@ ROUTE_WAYPOINTS = [
     # === SEGMEN MERAH (Gerbang Utama -> Lurus melewati Pertigaan -> Putar Balik TPSDA/SITH-R) ===
     {
         "id": "WP_01",
-        "name": "Halte Gerbang Utama (1)",
-        "building_ref": "Pos Utama & Gerbang Masuk",
+        "name": "Gerbang Utama",
+        "building_ref": "Pos Satpam & Gerbang Masuk",
         "pos": (0.59, 0.90),
         "segment": "RED",
         "corridor": "MAIN_SPINE",
@@ -45,8 +45,8 @@ ROUTE_WAYPOINTS = [
     },
     {
         "id": "WP_04",
-        "name": "Halte SITH-Rekayasa & TPSDA (12/25)",
-        "building_ref": "Titik Putar Balik 1 (Ujung Merah)",
+        "name": "Labtek 1A dan 1B",
+        "building_ref": "Titik Putar Balik 1",
         "pos": (0.53, 0.43),
         "segment": "RED",
         "corridor": "MAIN_SPINE",
@@ -67,8 +67,8 @@ ROUTE_WAYPOINTS = [
     },
     {
         "id": "WP_06",
-        "name": "Halte GKU II (9)",
-        "building_ref": "Gedung Kuliah Umum II (Kanan Pertigaan)",
+        "name": "GKU II dan Lab Terpadu",
+        "building_ref": "Gedung Kuliah Umum II dan Lab Terpadu",
         "pos": (0.67, 0.53),
         "segment": "YELLOW",
         "corridor": "EAST_CONNECTOR",
@@ -77,8 +77,8 @@ ROUTE_WAYPOINTS = [
     },
     {
         "id": "WP_07",
-        "name": "Halte GKU I & Gedung F (10/17)",
-        "building_ref": "Gedung Kuliah Umum I & FTSL",
+        "name": "GKU I",
+        "building_ref": "Gedung Kuliah Umum I",
         "pos": (0.77, 0.45),
         "segment": "YELLOW",
         "corridor": "EAST_CONNECTOR",
@@ -97,8 +97,8 @@ ROUTE_WAYPOINTS = [
     },
     {
         "id": "WP_09",
-        "name": "Halte Perpustakaan & GSG (32/31)",
-        "building_ref": "Perpustakaan Pusat & Amphitheater",
+        "name": "GKU III dan KOICA",
+        "building_ref": "Gedung Kuliah Umum III dan KOICA",
         "pos": (0.76, 0.25),
         "segment": "YELLOW",
         "corridor": "NORTH_RING",
@@ -117,8 +117,8 @@ ROUTE_WAYPOINTS = [
     },
     {
         "id": "WP_11",
-        "name": "Halte Asrama TB1 - TB4 (26-29)",
-        "building_ref": "Titik Putar Balik 2 (Ujung Kuning)",
+        "name": "Asrama TB1 - TB4",
+        "building_ref": "Titik Putar Balik 2",
         "pos": (0.53, 0.22),
         "segment": "YELLOW",
         "corridor": "NORTH_RING",
@@ -129,7 +129,7 @@ ROUTE_WAYPOINTS = [
     # === SEGMEN BIRU (Putar Balik 2 -> GOR -> Rektorat -> Lingkar Timur -> Gerbang Utama) ===
     {
         "id": "WP_12",
-        "name": "Halte GOR Jatinangor (30)",
+        "name": "GOR dan GSG ITB Jatinangor",
         "building_ref": "Gelanggang Olah Raga & GSG",
         "pos": (0.65, 0.15),
         "segment": "BLUE",
@@ -139,7 +139,7 @@ ROUTE_WAYPOINTS = [
     },
     {
         "id": "WP_13",
-        "name": "Halte Gedung Rektorat & R&D (33/34)",
+        "name": "Gedung Rektorat/Gedung Utama",
         "building_ref": "Rektorat ITB Jatinangor",
         "pos": (0.85, 0.34),
         "segment": "BLUE",
@@ -159,7 +159,7 @@ ROUTE_WAYPOINTS = [
     },
     {
         "id": "WP_15",
-        "name": "Halte Sekretariat Himpunan & TPA (3/8)",
+        "name": "Sekretariat Himpunan & TPA",
         "building_ref": "Area Himpunan Mahasiswa",
         "pos": (0.88, 0.63),
         "segment": "BLUE",
@@ -169,8 +169,8 @@ ROUTE_WAYPOINTS = [
     },
     {
         "id": "WP_16",
-        "name": "Halte SITH Kehutanan & Asrama Dosen (4/2)",
-        "building_ref": "Gedung SITH (4, 5, 6) & Asrama Dosen",
+        "name": "SITH (Kehutanan) & Asrama Dosen",
+        "building_ref": "Gedung SITH Kehutanan & Asrama Dosen",
         "pos": (0.91, 0.76),
         "segment": "BLUE",
         "corridor": "EAST_RING",
