@@ -21,16 +21,16 @@ Aplikasi pelacak posisi shuttle intrakampus **Institut Teknologi Bandung (ITB) K
 
 
 # Daftar Titik Pemberhentian
-**1**  Halte Gerbang Utama
-**2**  Halte Lab. Teknik 1A dan Lab. Teknik 1B
-**3**  Halte Gedung Kuliah Umum II dan Lab. Terpadu
-**4**  Halte Gedung Kuliah Umum I 
-**5**  Halte Gedung Kuliah Umum III dan KOICA
-**6**  Halte Asrama TB1 – TB4
-**7**  Halte GOR dan GSG
-**8**  Halte Gedung Rektorat
-**9**  Halte Sekretariat Himpunan & TPA
-**10** Halte SITH Kehutanan & Asrama Dosen
+1. Halte Gerbang Utama
+2. Halte Lab. Teknik 1A dan Lab. Teknik 1B
+3. Halte Gedung Kuliah Umum II dan Lab. Terpadu
+4. Halte Gedung Kuliah Umum I 
+5. Halte Gedung Kuliah Umum III dan KOICA
+6. Halte Asrama TB1 – TB4
+7. Halte GOR dan GSG
+8. Halte Gedung Rektorat
+9. Halte Sekretariat Himpunan & TPA
+10. Halte SITH Kehutanan & Asrama Dosen
 
 
 

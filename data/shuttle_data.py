@@ -1,7 +1,7 @@
 OPERATIONAL_INFO = {
     "corridor_code": "ITB-JTN",
     "corridor_name": "SHUTTLE INTRAKAMPUS JATINANGOR",
-    "hours_display": "07:00 - 17:00 WIB",
+    "hours_display": "06:45 - 16:00 WIB",
     "open_hour": 7,
     "close_hour": 17,
     "headway_minutes": 6,
